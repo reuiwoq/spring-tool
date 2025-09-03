@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>상세 조회</title>
+    <style>
+      #tr_btn_modify {
+        display: none;
+      }
+    </style>
+    <script th:inline="javascript">
+      function backToList(frm) {
+        frm.method = "get";
+        frm.action = /*[[@{/notice/list}]]*/ "";
+        frm.submit();
+      }
+      function fn_enable() {
+        document.querySelector("#i_title").disabled = false;
+        document.querySelector("#i_content").disabled = false;
+        document.querySelector("#tr_btn").style.display = "none";
+        document.querySelector("#tr_btn_modify").style.display = "table-row";
+      }
+      function fn_modify_article(frm) {
+        frm.action = /*[[@{/notice/edit}]]*/ "";
+        frm.submit();
+      }
+      function fn_remove(url, no) {
+        let form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", url);
+        let input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", "articleNo");
+        input.setAttribute("value", no);
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+      }
+    </script>
+  </head>
+  <body>
+    <form name="articleForm" method="post" th:action="@{/}">
+      <table border="0" align="center">
+        <tbody>
+          <tr>
+            <td width="150" align="center" bgcolor="#FF9933">글번호</td>
+            <td>
+              <input type="text" th:value="${article.id}" disabled />
+              <input type="hidden" th:value="${article.id}" name="articleNo" />
+            </td>
+          </tr>
+          <tr>
+            <td width="150" align="center" bgcolor="#FF9933">작성자</td>
+            <td>
+              <input
+                type="text"
+                th:value="${article.writer.username}"
+                name="writer"
+                disabled
+              />
+            </td>
+          </tr>
+          <tr>
+            <td width="150" align="center" bgcolor="#FF9933">제목</td>
+            <td>
+              <input
+                type="text"
+                th:value="${article.title}"
+                name="title"
+                id="i_title"
+                disabled
+              />
+            </td>
+          </tr>
+          <tr>
+            <td width="150" align="center" bgcolor="#FF9933">내용</td>
+            <td>
+              <textarea
+                rows="20"
+                cols="60"
+                name="content"
+                id="i_content"
+                disabled
+              >
+[[${article.content}]]</textarea
+              >
+            </td>
+          </tr>
+          <tr>
+            <td width="20%" align="center" bgcolor="#FF9933">작성일</td>
+            <td>
+              <input type="text" th:value="${article.writeDate}" disabled />
+            </td>
+          </tr>
+          <tr id="tr_btn">
+            <td colspan="2" align="center">
+              <input
+                type="button"
+                value="수정"
+                onclick="fn_enable()"
+                sec:authorize="isAuthenticated()"
+                th:if="${#authentication.getPrincipal().getUsername() == article.writer.username}"
+              />
+              <input
+                type="button"
+                value="삭제"
+                th:onclick="|fn_remove('@{/notice/remove}', '${article.id}')|"
+              />
+              <input
+                type="button"
+                value="목록보기"
+                onclick="backToList(articleForm)"
+              />
+            </td>
+          </tr>
+          <tr id="tr_btn_modify">
+            <td colspan="2" align="center">
+              <input
+                type="button"
+                value="저장"
+                onclick="fn_modify_article(articleForm)"
+              />
+              <input
+                type="button"
+                value="취소"
+                onclick="backToList(articleForm)"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </body>
+</html>
